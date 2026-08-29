@@ -1,0 +1,67 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://java.com
+hs_err_pid*
+replay_pid*
+
+# Build directories
+target/
+build/
+.gradle/
+out/
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - Eclipse
+.settings/
+.project
+.classpath
+.sts-project
+.factorypath
+
+# IDE - NetBeans
+nbproject/
+nbprivate/
+build/
+nb-configuration.xml
+
+# IDE - Visual Studio Code
+.vscode/
+
+# Operating System logs and files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment variables and sensitive properties
+.env
+# Se desejar ignorar suas configurações locais de propriedades:
+# src/main/resources/application-local.properties
+# src/main/resources/application-local.yml
