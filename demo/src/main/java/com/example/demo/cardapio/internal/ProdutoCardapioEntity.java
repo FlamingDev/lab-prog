@@ -22,11 +22,11 @@ public class ProdutoCardapioEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cardapio_id", nullable = false)
-    private Cardapio cardapio;
+    private CardapioEntity cardapio;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria categoria;
+    private CategoriaEntity categoria;
 
     @Column(nullable = false)
     private String imagem_url;

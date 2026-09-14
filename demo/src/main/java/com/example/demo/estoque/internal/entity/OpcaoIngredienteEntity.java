@@ -1,4 +1,4 @@
-package com.example.demo.stock.internal.entity;
+package com.example.demo.estoque.internal.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;

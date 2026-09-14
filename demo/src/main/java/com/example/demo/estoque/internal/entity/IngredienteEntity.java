@@ -1,4 +1,4 @@
-package com.example.demo.stock.internal.entity;
+package com.example.demo.estoque.internal.entity;
 
 import com.example.demo.common.UnidadeMedida;
 import jakarta.persistence.*;
