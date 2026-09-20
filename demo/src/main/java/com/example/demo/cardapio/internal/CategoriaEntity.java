@@ -22,8 +22,8 @@ public class CategoriaEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String descricao;
 
-    @Column(name = "precos_a_partir", nullable = false, precision = 10, scale = 2)
-    private BigDecimal precosAPartir;
+    @Column(name = "preco_a_partir", nullable = false, precision = 10, scale = 2)
+    private BigDecimal precoAPartir;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private OffsetDateTime dataCriacao = OffsetDateTime.now();

@@ -28,6 +28,28 @@ public class PedidoEntity {
     private UUID clienteId;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(
+                    name = "cep.cep",
+                    column = @Column(name = "entrega_cep", nullable = false)
+            ),
+            @AttributeOverride(
+                    name = "logradouro",
+                    column = @Column(name = "entrega_logradouro", nullable = false)
+            ),
+            @AttributeOverride(
+                    name = "numero",
+                    column = @Column(name = "entrega_numero", nullable = false)
+            ),
+            @AttributeOverride(
+                    name = "bairro",
+                    column = @Column(name = "entrega_bairro", nullable = false)
+            ),
+            @AttributeOverride(
+                    name = "complemento",
+                    column = @Column(name = "entrega_complemento")
+            )
+    })
     private EnderecoEmbeddable enderecoEntrega;
 
     @Column(name = "valor_itens", nullable = false, precision = 10, scale = 2)
@@ -49,7 +71,7 @@ public class PedidoEntity {
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_pedido", nullable = false)
+    @Column(name = "status", nullable = false)
     private StatusPedido statusPedido;
 
     // TODO computar valor dos itens

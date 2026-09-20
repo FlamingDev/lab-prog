@@ -23,7 +23,7 @@ public class ItemPedidoEntity {
     @Column(name = "produto_cardapio_id", nullable = false)
     private UUID produtoCardapioId;
 
-    @OneToMany(mappedBy = "item_pedido")
+    @OneToMany(mappedBy = "itemPedido")
     private List<OpcaoItemPedidoEntity> opcoesItemPedido;
 
     @Column(name = "preco_item", nullable = false, precision = 10, scale = 2)

@@ -19,6 +19,9 @@ public class ProdutoEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "restaurante_id", nullable = false)
+    private UUID restaurante_id;
+
     @Column(nullable = false, length = 120)
     private String nome;
 

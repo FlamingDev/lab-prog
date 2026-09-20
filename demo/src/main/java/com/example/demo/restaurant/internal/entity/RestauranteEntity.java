@@ -23,9 +23,6 @@ public class RestauranteEntity{
     @Column(nullable = false)
     private String status;
 
-    @Column(nullable = false)
-    private String email;
-
     @Column(columnDefinition = "TEXT")
     private String descricao;
 

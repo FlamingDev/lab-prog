@@ -29,7 +29,7 @@ public class OpcaoIngredienteEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ingrediente_id", nullable = false)
-    private IngredienteEntity ingredienteEntity;
+    private IngredienteEntity ingrediente;
 
     @Column(name = "qtd_ingrediente", nullable = false, precision = 10, scale = 3)
     private BigDecimal qtdIngrediente;

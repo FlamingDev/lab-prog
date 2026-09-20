@@ -21,11 +21,11 @@ public class ProdutoIngredienteEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "produto_id", nullable = false)
-    private ProdutoEntity produtoEntity;
+    private ProdutoEntity produto;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ingrediente_id", nullable = false)
-    private IngredienteEntity ingredienteEntity;
+    private IngredienteEntity ingrediente;
 
     @Column(name = "restaurante_id", nullable = false)
     private UUID restauranteId;
