@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,60 +56,120 @@ public class PedidoEntity {
     private EnderecoEmbeddable enderecoEntrega;
 
     @Column(name = "valor_itens", nullable = false, precision = 10, scale = 2)
-    private BigDecimal subtotalItens;
+    private BigDecimal subtotalItens = BigDecimal.ZERO;
 
     @Column(name = "valor_entrega", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorEntrega;
 
-    @Column(name = "valor_desconto", nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorDesconto;
-
     @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorTotal;
+    private BigDecimal valorTotal = BigDecimal.ZERO;
 
-    @Column(name = "atualizado_em", nullable = false)
-    private OffsetDateTime atualizadoEm = OffsetDateTime.now();
-
+    // Timestamps operacionais
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private OffsetDateTime criadoEm = OffsetDateTime.now();
+    private OffsetDateTime criadoEm;
+
+    @Column(name = "confirmado_em")
+    private OffsetDateTime confirmadoEm;
+
+    @Column(name = "saiu_entrega_em")
+    private OffsetDateTime saiuEntregaEm;
+
+    @Column(name = "entregue_em")
+    private OffsetDateTime entregueEm;
+
+    @Column(name = "cancelado_em")
+    private OffsetDateTime canceladoEm;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StatusPedido statusPedido;
 
-    // TODO computar valor dos itens
+    @Column(name = "motivo_cancelamento")
+    private String motivoCancelamento;
+
+    @OneToMany(
+        mappedBy = "pedido",
+        fetch = FetchType.LAZY
+    )
+    private List<ItemPedidoEntity> itens = new ArrayList<>();
+
     public PedidoEntity(
             UUID restauranteId,
             UUID clienteId,
             EnderecoEmbeddable enderecoEntrega,
-            BigDecimal subtotalItens,
-            BigDecimal valorEntrega,
-            BigDecimal valorDesconto
+            BigDecimal valorEntrega
+
     ) {
         this.restauranteId = Objects.requireNonNull(restauranteId);
         this.clienteId = Objects.requireNonNull(clienteId);
         this.enderecoEntrega = Objects.requireNonNull(enderecoEntrega);
-        this.subtotalItens = Objects.requireNonNull(subtotalItens);
-        this.valorEntrega = Objects.requireNonNull(valorEntrega);
-        this.valorDesconto = Objects.requireNonNull(valorDesconto);
-
-        this.valorTotal = subtotalItens.add(valorEntrega).subtract(valorDesconto);
-
-        if (this.valorTotal.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("O valor total do pedido não pode ser negativo");
-        }
-
+        this.valorEntrega = valorEntrega == null ? BigDecimal.ZERO : valorEntrega;
         this.statusPedido = StatusPedido.CRIADO;
+        this.criadoEm = OffsetDateTime.now();
+        this.valorTotal = valorTotal.add(this.valorEntrega);
     }
 
-    public void alterarStatusPara(StatusPedido novoStatus) {
-        Objects.requireNonNull(novoStatus, "O novo status não pode ser nulo");
+    public void adicionarItem(ItemPedidoEntity itemPedido){
+        garantirModificavel();
+        if (itemPedido == null) throw new IllegalArgumentException("Item não pode ser nulo.");
 
+        // checando se já existe um item equivalente
+        // se existir, apenas juntamos os dois
+        this.itens.stream()
+                .filter(itemExistente -> itemExistente.ehIgualA(itemPedido))
+                .findFirst()
+                .ifPresentOrElse(
+                        itemExistente ->
+                                itemExistente.incrementarQuantidade(itemPedido.getQuantidadeItem()),
+                        () -> {
+                            this.itens.add(itemPedido);
+                            itemPedido.vincularAoPedido(this);
+                        }
+                );
+        adicionarItemAoTotal(itemPedido);
+    }
+
+    private void adicionarItemAoTotal(ItemPedidoEntity itemPedido) {
+        BigDecimal subtotal = itemPedido.getSubtotalItem();
+
+        this.subtotalItens = this.subtotalItens.add(subtotal);
+        this.valorTotal = this.valorTotal.add(subtotal);
+    }
+
+    public void confirmar(OffsetDateTime dateTime){
+        transicionaSePuderPara(StatusPedido.CONFIRMADO);
+        this.confirmadoEm = dateTime;
+    }
+
+    public void despacharParaEntrega(OffsetDateTime dateTime){
+        transicionaSePuderPara(StatusPedido.SAIU_PARA_ENTREGA);
+        this.saiuEntregaEm = dateTime;
+    }
+
+    public void marcarComoEntregue(OffsetDateTime dateTime){
+        transicionaSePuderPara(StatusPedido.ENTREGUE);
+        this.entregueEm = dateTime;
+    }
+
+    public void cancelar(String motivo, OffsetDateTime dateTime){
+        transicionaSePuderPara(StatusPedido.CANCELADO);
+        this.canceladoEm = dateTime;
+        this.motivoCancelamento = motivo;
+    }
+
+    private void transicionaSePuderPara(StatusPedido novoStatus) {
         if (!this.statusPedido.podeTransicionarPara(novoStatus)) {
             throw new IllegalStateException(
                     String.format("Transição inválida de %s para %s", this.statusPedido, novoStatus)
             );
         }
         this.statusPedido = novoStatus;
+    }
+
+    private void garantirModificavel() {
+        if (this.statusPedido != StatusPedido.CRIADO) {
+            throw new IllegalStateException("Não é possível alterar itens de um pedido com status: "
+                    + this.statusPedido);
+        }
     }
 }

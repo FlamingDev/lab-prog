@@ -11,7 +11,6 @@ public enum StatusPedido {
     ENTREGUE,
     CANCELADO;
 
-    // Resolve as transições via switch expressions (Java 14+)
     public Set<StatusPedido> proximosStatusPermitidos() {
         return switch (this) {
             case CRIADO            -> Set.of(CONFIRMADO, CANCELADO);

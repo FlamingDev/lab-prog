@@ -5,7 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.modulith.Modulith;
 
 @SpringBootTest
-@Modulith
 class DemoApplicationTests {
 
 	@Test

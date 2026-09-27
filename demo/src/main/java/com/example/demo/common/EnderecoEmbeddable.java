@@ -3,12 +3,14 @@ package com.example.demo.common;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Embeddable
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor()
 public class EnderecoEmbeddable {
     @Embedded
     private Cep cep;

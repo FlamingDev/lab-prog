@@ -5,27 +5,74 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- MÓDULO: GESTÃO & RESTAURANTE
 -- =============================================================================
 
-CREATE TABLE IF NOT EXISTS admin (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nome VARCHAR(120) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    cpf VARCHAR(14) NOT NULL UNIQUE
-);
-
 CREATE TABLE IF NOT EXISTS restaurante (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    admin_id UUID NOT NULL,
     nome VARCHAR(150) NOT NULL,
     status VARCHAR(30) NOT NULL,
+    ativo BOOLEAN NOT NULL,
     descricao TEXT,
     telefone VARCHAR(20) NOT NULL,
     cep VARCHAR(9) NOT NULL,
     logradouro VARCHAR(150) NOT NULL,
+    valor_minimo_pedido NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
     complemento VARCHAR(150) NOT NULL,
+    override_funcionamento_tipo VARCHAR(30) NOT NULL,
+    override_funcionamento_valido_ate TIMESTAMP WITH TIME ZONE NOT NULL,
     numero VARCHAR(20) NOT NULL,
     bairro VARCHAR(80) NOT NULL,
-    data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_restaurante_admin FOREIGN KEY (admin_id) REFERENCES admin(id)
+    data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE  IF NOT EXISTS horario_funcionamento(
+    id UUID PRIMARY KEY,
+    restaurante_id UUID NOT NULL,
+    dia_semana VARCHAR(9) NOT NULL,
+    hora_abertura TIME NOT NULL,
+    hora_fechamento TIME NOT NULL,
+
+    CONSTRAINT fk_horario_restaurante
+        FOREIGN KEY (restaurante_id)
+        REFERENCES restaurante (id),
+
+    CONSTRAINT ck_horario_dia_semana
+        CHECK (dia_semana IN (
+            'MONDAY',
+            'TUESDAY',
+            'WEDNESDAY',
+            'THURSDAY',
+            'FRIDAY',
+            'SATURDAY',
+            'SUNDAY'
+        )),
+
+    CONSTRAINT ck_horario_intervalo
+        CHECK (hora_abertura < hora_fechamento)
+);
+
+-- =============================================================================
+-- MÓDULO: USUÁRIO
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS usuario (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(120) NOT NULL,
+    senha TEXT NOT NULL,
+    ativo BOOLEAN NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    cpf VARCHAR(14) NOT NULL UNIQUE
+
+);
+
+CREATE TABLE IF NOT EXISTS usuario_restaurante (
+    id UUID PRIMARY KEY,
+    usuario_id UUID NOT NULL,
+    restaurante_id UUID NOT NULL,
+    usuario_role VARCHAR(50) NOT NULL,
+    CONSTRAINT uk_usuario_restaurante UNIQUE (usuario_id, restaurante_id),
+    CONSTRAINT fk_usuario_restaurante_usuario
+        FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    CONSTRAINT fk_usuario_restaurante_restaurante
+        FOREIGN KEY (restaurante_id) REFERENCES restaurante(id)
 );
 
 -- =============================================================================
@@ -112,7 +159,8 @@ CREATE TABLE IF NOT EXISTS grupo_opcao (
     obrigatorio BOOLEAN NOT NULL DEFAULT false,
     minimo_escolhas INTEGER NOT NULL DEFAULT 0,
     maximo_escolhas INTEGER NOT NULL DEFAULT 1,
-    CONSTRAINT fk_grupo_opcao_prod_cardapio FOREIGN KEY (produto_cardapio_id) REFERENCES produto_cardapio(id) ON DELETE CASCADE
+    CONSTRAINT fk_grupo_opcao_prod_cardapio
+        FOREIGN KEY (produto_cardapio_id) REFERENCES produto_cardapio(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS opcao_produto (
@@ -143,7 +191,7 @@ CREATE TABLE IF NOT EXISTS opcao_ingrediente (
 CREATE TABLE IF NOT EXISTS cliente (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome VARCHAR(120) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
+    telefone VARCHAR(11) NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
     ativo BOOLEAN NOT NULL DEFAULT true,
     criado_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -181,8 +229,12 @@ CREATE TABLE IF NOT EXISTS pedido (
     valor_desconto NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
     valor_total NUMERIC(10, 2) NOT NULL,
     status VARCHAR(30) NOT NULL,
+    motivo_cancelamento TEXT NOT NULL,
     criado_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    confirmado_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    saiu_entrega_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    entregue_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    cancelado_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_pedido_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id),
     CONSTRAINT fk_pedido_cliente FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
@@ -194,6 +246,7 @@ CREATE TABLE IF NOT EXISTS item_pedido (
     nome_item VARCHAR(120) NOT NULL,
     preco_item NUMERIC(10, 2) NOT NULL,
     quantidade_item INTEGER NOT NULL,
+    subtotal_item NUMERIC(10, 2) NOT NULL,
     observacao VARCHAR(255),
     CONSTRAINT fk_item_pedido_pedido FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
     CONSTRAINT fk_item_pedido_produto_cardapio FOREIGN KEY (produto_cardapio_id) REFERENCES produto_cardapio(id)

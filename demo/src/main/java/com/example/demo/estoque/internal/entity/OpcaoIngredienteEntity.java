@@ -3,6 +3,7 @@ package com.example.demo.estoque.internal.entity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -18,7 +19,7 @@ import java.util.UUID;
         }
 )
 @Data
-@Builder
+@NoArgsConstructor()
 public class OpcaoIngredienteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
