@@ -1,6 +1,6 @@
-package com.example.demo.restaurant.internal.entity;
+package com.example.demo.usuario.internal.entity;
 
-import com.example.demo.usuario.internal.entity.UsuarioRole;
+import com.example.demo.usuario.common.UsuarioRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 

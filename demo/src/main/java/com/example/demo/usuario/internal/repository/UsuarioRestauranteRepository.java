@@ -1,11 +1,12 @@
 package com.example.demo.usuario.internal.repository;
 
-import com.example.demo.restaurant.internal.entity.UsuarioRestauranteEntity;
+import com.example.demo.usuario.internal.entity.UsuarioRestauranteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+// Role Repository
 public interface UsuarioRestauranteRepository
         extends JpaRepository<UsuarioRestauranteEntity, UUID> {
 

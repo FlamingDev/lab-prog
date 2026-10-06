@@ -1,7 +1,5 @@
 package com.example.demo.usuario.internal.entity;
 
-import com.example.demo.restaurant.internal.entity.RestauranteEntity;
-import com.example.demo.restaurant.internal.entity.UsuarioRestauranteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jspecify.annotations.Nullable;

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class RestauranteService {
     RestauranteRepository restauranteRepository;
 
-    UsuarioRepository usuarioRepository;
+    //UsuarioRepository usuarioRepository;
 
     public void criarRestaurante(){
 
