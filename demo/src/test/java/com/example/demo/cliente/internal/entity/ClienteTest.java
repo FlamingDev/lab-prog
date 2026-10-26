@@ -1,7 +1,5 @@
 package com.example.demo.cliente.internal.entity;
 
-import com.example.demo.cliente.entity.ClienteEnderecoEntity;
-import com.example.demo.cliente.entity.ClienteEntity;
 import com.example.demo.common.Cep;
 import com.example.demo.common.EnderecoEmbeddable;
 import org.junit.jupiter.api.Test;

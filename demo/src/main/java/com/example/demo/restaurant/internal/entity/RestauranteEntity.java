@@ -1,7 +1,6 @@
 package com.example.demo.restaurant.internal.entity;
 
 import com.example.demo.common.EnderecoEmbeddable;
-import com.example.demo.usuario.internal.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,6 +10,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -49,8 +49,9 @@ public class RestauranteEntity{
     @Embedded
     private OverrideFuncionamento overrideFuncionamento;
 
-    @OneToMany(mappedBy = "restaurante", fetch = FetchType.LAZY)
-    List<HorarioFuncionamentoEntity> horariosFuncionamento;
+    // essas opcoes removem os horarios de funcionamento da tabela se apagados da lista do pai
+    @OneToMany(mappedBy = "restaurante", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<HorarioFuncionamentoEntity> horariosFuncionamento = new ArrayList<>();
 
     public RestauranteEntity(
             String nome,
@@ -61,11 +62,11 @@ public class RestauranteEntity{
         this.nome = Objects.requireNonNull(nome, "Nome do restaurante é obrigatório.");
         this.telefone = Objects.requireNonNull(telefone, "Telefone é obrigatório.");
         this.endereco = Objects.requireNonNull(endereco, "Endereço é obrigatório.");
-        this.ativo = true;
+        this.ativo = false;
         this.valorMinimoPedido = valorMinimoPedido;
     }
 
-    public void abrirManualmente(Instant validoAte) {
+    public void abrirTemporariamente(Instant validoAte) {
         this.overrideFuncionamento =
                 new OverrideFuncionamento(
                         OverrideFuncionamento.TipoOverride.ABRIR,
@@ -73,11 +74,18 @@ public class RestauranteEntity{
                 );
     }
 
-    public void fecharManualmente(Instant validoAte) {
+    public void fecharTemporariamente(Instant validoAte) {
         this.overrideFuncionamento =
                 new OverrideFuncionamento(
                         OverrideFuncionamento.TipoOverride.FECHAR,
                         validoAte
                 );
     }
+
+    public void atualizarHorarios(List<HorarioFuncionamentoEntity> novosHorarios) {
+        this.horariosFuncionamento.clear();
+        this.horariosFuncionamento.addAll(novosHorarios);
+    }
 }
+
+

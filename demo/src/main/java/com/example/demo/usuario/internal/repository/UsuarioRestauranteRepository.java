@@ -3,6 +3,7 @@ package com.example.demo.usuario.internal.repository;
 import com.example.demo.usuario.internal.entity.UsuarioRestauranteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,7 @@ public interface UsuarioRestauranteRepository
 
     Optional<UsuarioRestauranteEntity>
     findByUsuarioIdAndRestauranteId(UUID usuarioId, UUID restauranteId);
+
+    List<UsuarioRestauranteEntity>
+    findAllByUsuarioId(UUID usuarioId);
 }

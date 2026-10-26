@@ -38,10 +38,6 @@ public class UsuarioEntity implements UserDetails {
     @Column(nullable = false)
     private Boolean ativo;
 
-    @OneToMany(mappedBy = "usuarioId", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<UsuarioRestauranteEntity> vinculos = new ArrayList<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

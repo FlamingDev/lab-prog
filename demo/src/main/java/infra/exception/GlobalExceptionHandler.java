@@ -1,5 +1,10 @@
 package infra.exception;
 
+import com.example.demo.restaurant.internal.exception.RestauranteException;
+import com.example.demo.restaurant.internal.exception.RestauranteNaoEncontradoException;
+import com.example.demo.usuario.internal.exception.CadastroUsuarioException;
+import com.example.demo.usuario.internal.exception.UsuarioAuthorizationException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -58,4 +63,65 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
     }
+
+    @ExceptionHandler(RestauranteNaoEncontradoException.class)
+    public ResponseEntity<ErroRespostaDto> handleRestauranteNaoEncontrado(RestauranteNaoEncontradoException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(RestauranteException.class)
+    public ResponseEntity<ErroRespostaDto> handleRestauranteException(RestauranteException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErroRespostaDto> handleEntityNotFound(EntityNotFoundException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(CadastroUsuarioException.class)
+    public ResponseEntity<ErroRespostaDto> handleCadastroUsuario(CadastroUsuarioException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+    }
+
+    @ExceptionHandler(UsuarioAuthorizationException.class)
+    public ResponseEntity<ErroRespostaDto> handleUsuarioAuthorization(UsuarioAuthorizationException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(corpo);
+    }
 }
+

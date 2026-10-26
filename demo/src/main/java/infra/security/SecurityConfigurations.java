@@ -28,14 +28,19 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // Leitura de produtos e restaurantes são públicos
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/api/produto/**",
-                                "/api/restaurantes/**"
-                        )
-                        .permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                                "/api/restaurantes/meus"
+                        ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/restaurantes/{restauranteId}"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/restaurantes/{restauranteId}/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(
@@ -53,7 +58,8 @@ public class SecurityConfigurations {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
+

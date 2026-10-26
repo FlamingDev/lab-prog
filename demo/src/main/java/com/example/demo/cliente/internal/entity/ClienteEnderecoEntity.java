@@ -1,10 +1,9 @@
-package com.example.demo.cliente.entity;
+package com.example.demo.cliente.internal.entity;
 
 import com.example.demo.common.EnderecoEmbeddable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 import java.util.UUID;

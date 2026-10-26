@@ -1,6 +1,9 @@
 package com.example.demo.restaurant.internal.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -8,8 +11,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "horario_funcionamento")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HorarioFuncionamentoEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -26,4 +30,11 @@ public class HorarioFuncionamentoEntity {
 
     @Column(nullable = false, name = "hora_fechamento")
     private LocalTime horaFechamento;
+
+    public HorarioFuncionamentoEntity(RestauranteEntity restaurante, DayOfWeek diaSemana, LocalTime horaAbertura, LocalTime horaFechamento) {
+        this.restaurante = restaurante;
+        this.diaSemana = diaSemana;
+        this.horaAbertura = horaAbertura;
+        this.horaFechamento = horaFechamento;
+    }
 }

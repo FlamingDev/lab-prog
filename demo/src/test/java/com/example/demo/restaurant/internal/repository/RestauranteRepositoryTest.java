@@ -1,11 +1,10 @@
-package com.example.demo.restaurante.internal.repository;
+package com.example.demo.restaurant.internal.repository;
 
 import com.example.demo.common.Cep;
 import com.example.demo.common.EnderecoEmbeddable;
 import com.example.demo.usuario.internal.entity.UsuarioEntity;
 import com.example.demo.restaurant.internal.entity.RestauranteEntity;
 import com.example.demo.usuario.internal.repository.UsuarioRepository;
-import com.example.demo.restaurant.internal.repository.RestauranteRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -95,28 +94,14 @@ class RestauranteRepositoryTest {
     }
 
     private RestauranteEntity criarRestaurante() {
-        UsuarioEntity admin = criarAdmin();
         EnderecoEmbeddable endereco = criarEndereco();
 
-        usuarioRepository.save(admin);
         return new RestauranteEntity(
                 "Restaurante Teste",
                 "98999999999",
-                admin,
                 endereco,
                 new BigDecimal("20.00")
         );
-    }
-
-    private UsuarioEntity criarAdmin() {
-
-        return UsuarioEntity
-                .builder()
-                .nome("Admin Teste")
-                .email("admin@teste.com")
-                .cpf("12345678901")
-                .senha("senha-hash")
-                .build();
     }
 
     private EnderecoEmbeddable criarEndereco() {
