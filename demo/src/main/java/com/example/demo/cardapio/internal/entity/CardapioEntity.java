@@ -1,17 +1,16 @@
-package com.example.demo.cardapio.internal;
+package com.example.demo.cardapio.internal.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "categoria")
+@Table(name = "cardapio")
 @Data
-public class CategoriaEntity {
+public class CardapioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -19,11 +18,11 @@ public class CategoriaEntity {
     @Column(nullable = false)
     String nome;
 
+    @Column(nullable = false)
+    Boolean ativo;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String descricao;
-
-    @Column(name = "preco_a_partir", nullable = false, precision = 10, scale = 2)
-    private BigDecimal precoAPartir;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private OffsetDateTime dataCriacao = OffsetDateTime.now();
@@ -31,6 +30,7 @@ public class CategoriaEntity {
     @Column(name = "restaurante_id", nullable = false)
     private UUID restauranteId;
 
-    @OneToMany(mappedBy = "categoria")
+    @OneToMany(mappedBy = "cardapio")
     private List<ProdutoCardapioEntity> produtosCardapio;
+
 }

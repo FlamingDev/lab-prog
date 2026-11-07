@@ -1,5 +1,8 @@
 package infra.exception;
 
+import com.example.demo.estoque.internal.exception.EstoqueException;
+import com.example.demo.estoque.internal.exception.IngredienteNaoEncontradoException;
+import com.example.demo.estoque.internal.exception.ProdutoNaoEncontradoException;
 import com.example.demo.restaurant.internal.exception.RestauranteException;
 import com.example.demo.restaurant.internal.exception.RestauranteNaoEncontradoException;
 import com.example.demo.usuario.internal.exception.CadastroUsuarioException;
@@ -78,6 +81,42 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RestauranteException.class)
     public ResponseEntity<ErroRespostaDto> handleRestauranteException(RestauranteException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+    }
+
+    @ExceptionHandler(IngredienteNaoEncontradoException.class)
+    public ResponseEntity<ErroRespostaDto> handleIngredienteNaoEncontrado(IngredienteNaoEncontradoException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(ProdutoNaoEncontradoException.class)
+    public ResponseEntity<ErroRespostaDto> handleProdutoNaoEncontrado(ProdutoNaoEncontradoException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(EstoqueException.class)
+    public ResponseEntity<ErroRespostaDto> handleEstoqueException(EstoqueException ex) {
         ErroRespostaDto corpo = new ErroRespostaDto(
                 Instant.now(),
                 HttpStatus.BAD_REQUEST.value(),

@@ -1,4 +1,4 @@
-package com.example.demo.cardapio.internal;
+package com.example.demo.cardapio.internal.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

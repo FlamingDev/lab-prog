@@ -1,11 +1,13 @@
 package com.example.demo.estoque.internal.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -18,8 +20,9 @@ import java.util.UUID;
                 )
         }
 )
-@Data
-@NoArgsConstructor()
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OpcaoIngredienteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,4 +37,14 @@ public class OpcaoIngredienteEntity {
 
     @Column(name = "qtd_ingrediente", nullable = false, precision = 10, scale = 3)
     private BigDecimal qtdIngrediente;
+
+    public OpcaoIngredienteEntity(
+            UUID opcaoProdutoId,
+            IngredienteEntity ingrediente,
+            BigDecimal qtdIngrediente
+    ) {
+        this.opcaoProdutoId = Objects.requireNonNull(opcaoProdutoId, "ID da opção de produto é obrigatório.");
+        this.ingrediente = Objects.requireNonNull(ingrediente, "Ingrediente é obrigatório.");
+        this.qtdIngrediente = Objects.requireNonNull(qtdIngrediente, "Quantidade do ingrediente é obrigatória.");
+    }
 }
