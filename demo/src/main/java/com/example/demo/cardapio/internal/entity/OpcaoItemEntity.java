@@ -7,14 +7,15 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "opcao_produto")
+@Table(name = "opcao_item")
 @Data
-public class OpcaoProdutoEntity{
+public class OpcaoItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "grupo_opcao_id")
     private GrupoOpcaoEntity grupoOpcao;
 
     @Column(nullable = false)

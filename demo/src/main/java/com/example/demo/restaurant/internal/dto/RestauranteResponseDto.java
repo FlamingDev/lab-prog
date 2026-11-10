@@ -1,6 +1,7 @@
 package com.example.demo.restaurant.internal.dto;
 
 import com.example.demo.common.EnderecoEmbeddable;
+import com.example.demo.common.StorageUrlResolver;
 import com.example.demo.restaurant.internal.entity.HorarioFuncionamentoEntity;
 import com.example.demo.restaurant.internal.entity.RestauranteEntity;
 
@@ -16,6 +17,8 @@ public record RestauranteResponseDto(
         String nome,
         String descricao,
         String telefone,
+        String logoUrl,
+        String bannerUrl,
         Boolean ativo,
         boolean aberto,
         BigDecimal valorMinimoPedido,
@@ -49,6 +52,8 @@ public record RestauranteResponseDto(
                 entity.getNome(),
                 entity.getDescricao(),
                 entity.getTelefone(),
+                StorageUrlResolver.resolve(entity.getLogoUrl()),
+                StorageUrlResolver.resolve(entity.getBannerUrl()),
                 entity.getAtivo(),
                 aberto,
                 entity.getValorMinimoPedido(),
@@ -58,5 +63,3 @@ public record RestauranteResponseDto(
         );
     }
 }
-
-

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS restaurante (
     ativo BOOLEAN NOT NULL,
     descricao TEXT,
     telefone VARCHAR(20) NOT NULL,
+    logo_url VARCHAR(500) NOT NULL,
+    banner_url VARCHAR(500) NOT NULL,
     cep VARCHAR(9) NOT NULL,
     logradouro VARCHAR(150) NOT NULL,
     valor_minimo_pedido NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
@@ -121,6 +123,7 @@ CREATE TABLE IF NOT EXISTS cardapio (
     restaurante_id UUID NOT NULL,
     nome VARCHAR(100) NOT NULL,
     descricao TEXT,
+    banner_url VARCHAR(500),
     ativo BOOLEAN NOT NULL DEFAULT true,
     data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cardapio_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id)
@@ -128,48 +131,48 @@ CREATE TABLE IF NOT EXISTS cardapio (
 
 CREATE TABLE IF NOT EXISTS categoria (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    restaurante_id UUID NOT NULL,
+    cardapio_id UUID NOT NULL,
     nome VARCHAR(80) NOT NULL,
     descricao TEXT,
-    preco_a_partir NUMERIC(10, 2),
+    ativo BOOLEAN NOT NULL DEFAULT true,
+    prioridade_exibicao INTEGER NOT NULL DEFAULT 0,
     data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_categoria_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id)
+    CONSTRAINT fk_categoria_cardapio FOREIGN KEY (cardapio_id) REFERENCES cardapio(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS produto_cardapio (
+CREATE TABLE IF NOT EXISTS item_cardapio (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cardapio_id UUID NOT NULL,
     categoria_id UUID NOT NULL,
     produto_id UUID NOT NULL,
     nome_comercial VARCHAR(120) NOT NULL,
-    descricao TEXT,
+    descricao TEXT NOT NULL,
     imagem_url VARCHAR(500),
     preco NUMERIC(10, 2) NOT NULL,
-    tempo_preparo INTEGER,
-    CONSTRAINT fk_prod_cardapio_cardapio FOREIGN KEY (cardapio_id) REFERENCES cardapio(id) ON DELETE CASCADE,
-    CONSTRAINT fk_prod_cardapio_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id),
-    CONSTRAINT fk_prod_cardapio_produto FOREIGN KEY (produto_id) REFERENCES produto(id)
+    tempo_preparo_minutos INTEGER NOT NULL,
+    disponivel BOOLEAN NOT NULL DEFAULT true,
+    prioridade_exibicao INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT fk_item_cardapio_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE CASCADE,
+    CONSTRAINT fk_item_cardapio_produto FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
 
 CREATE TABLE IF NOT EXISTS grupo_opcao (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    produto_cardapio_id UUID NOT NULL,
+    item_cardapio_id UUID NOT NULL,
     nome VARCHAR(100) NOT NULL,
-    obrigatorio BOOLEAN NOT NULL DEFAULT false,
     minimo_escolhas INTEGER NOT NULL DEFAULT 0,
     maximo_escolhas INTEGER NOT NULL DEFAULT 1,
-    CONSTRAINT fk_grupo_opcao_prod_cardapio
-        FOREIGN KEY (produto_cardapio_id) REFERENCES produto_cardapio(id) ON DELETE CASCADE
+    CONSTRAINT fk_grupo_opcao_item_cardapio
+        FOREIGN KEY (item_cardapio_id) REFERENCES item_cardapio(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS opcao_produto (
+CREATE TABLE IF NOT EXISTS opcao_item (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     grupo_opcao_id UUID NOT NULL,
     nome VARCHAR(100) NOT NULL,
     preco_adicional NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
     quantidade_maxima INTEGER NOT NULL DEFAULT 1,
     disponivel BOOLEAN NOT NULL DEFAULT true,
-    CONSTRAINT fk_opcao_produto_grupo FOREIGN KEY (grupo_opcao_id) REFERENCES grupo_opcao(id) ON DELETE CASCADE
+    CONSTRAINT fk_opcao_item_grupo FOREIGN KEY (grupo_opcao_id) REFERENCES grupo_opcao(id) ON DELETE CASCADE
 );
 
 -- Ligação entre Opção do Catálogo e Baixa de Estoque
@@ -178,7 +181,7 @@ CREATE TABLE IF NOT EXISTS opcao_ingrediente (
     opcao_produto_id UUID NOT NULL,
     ingrediente_id UUID NOT NULL,
     qtd_ingrediente NUMERIC(10, 3) NOT NULL,
-    CONSTRAINT fk_opcao_ing_opcao FOREIGN KEY (opcao_produto_id) REFERENCES opcao_produto(id) ON DELETE CASCADE,
+    CONSTRAINT fk_opcao_ing_opcao FOREIGN KEY (opcao_produto_id) REFERENCES opcao_item(id) ON DELETE CASCADE,
     CONSTRAINT fk_opcao_ing_ingrediente FOREIGN KEY (ingrediente_id) REFERENCES ingrediente(id),
     CONSTRAINT uk_opcao_ingrediente UNIQUE (opcao_produto_id, ingrediente_id)
 );
@@ -248,7 +251,7 @@ CREATE TABLE IF NOT EXISTS item_pedido (
     subtotal_item NUMERIC(10, 2) NOT NULL,
     observacao VARCHAR(255),
     CONSTRAINT fk_item_pedido_pedido FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
-    CONSTRAINT fk_item_pedido_produto_cardapio FOREIGN KEY (produto_cardapio_id) REFERENCES produto_cardapio(id)
+    CONSTRAINT fk_item_pedido_item_cardapio FOREIGN KEY (produto_cardapio_id) REFERENCES item_cardapio(id)
 );
 
 CREATE TABLE IF NOT EXISTS opcao_item_pedido (
@@ -259,7 +262,7 @@ CREATE TABLE IF NOT EXISTS opcao_item_pedido (
     preco_opcao NUMERIC(10, 2) NOT NULL,
     quantidade_opcao INTEGER NOT NULL,
     CONSTRAINT fk_opcao_item_item_pedido FOREIGN KEY (item_pedido_id) REFERENCES item_pedido(id) ON DELETE CASCADE,
-    CONSTRAINT fk_opcao_item_opcao_produto FOREIGN KEY (opcao_produto_id) REFERENCES opcao_produto(id)
+    CONSTRAINT fk_opcao_item_opcao_item FOREIGN KEY (opcao_produto_id) REFERENCES opcao_item(id)
 );
 
 -- SPRING MODULITH

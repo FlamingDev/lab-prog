@@ -34,6 +34,12 @@ public class RestauranteEntity{
     @Column(nullable = false)
     private String telefone;
 
+    @Column(name = "logo_url", nullable = false, length = 500)
+    private String logoUrl;
+
+    @Column(name = "banner_url", nullable = false, length = 500)
+    private String bannerUrl;
+
     @Column(nullable = false)
     private Boolean ativo; // restaurante esta ativo na plataforma
 
@@ -57,11 +63,15 @@ public class RestauranteEntity{
             String nome,
             String telefone,
             EnderecoEmbeddable endereco,
-            BigDecimal valorMinimoPedido
+            BigDecimal valorMinimoPedido,
+            String logoUrl,
+            String bannerUrl
     ) {
         this.nome = Objects.requireNonNull(nome, "Nome do restaurante é obrigatório.");
         this.telefone = Objects.requireNonNull(telefone, "Telefone é obrigatório.");
         this.endereco = Objects.requireNonNull(endereco, "Endereço é obrigatório.");
+        this.logoUrl = Objects.requireNonNull(logoUrl, "Logo do restaurante é obrigatória.");
+        this.bannerUrl = Objects.requireNonNull(bannerUrl, "Banner do restaurante é obrigatório.");
         this.ativo = false;
         this.valorMinimoPedido = valorMinimoPedido;
     }
@@ -87,5 +97,3 @@ public class RestauranteEntity{
         this.horariosFuncionamento.addAll(novosHorarios);
     }
 }
-
-

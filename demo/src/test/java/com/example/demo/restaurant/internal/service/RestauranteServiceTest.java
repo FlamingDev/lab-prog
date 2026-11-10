@@ -61,7 +61,9 @@ class RestauranteServiceTest {
                 "Melhor comida caseira",
                 "98988887777",
                 new BigDecimal("25.00"),
-                enderecoDto
+                enderecoDto,
+                "restaurantes/logo.webp",
+                "restaurantes/banner.webp"
         );
 
         when(restauranteRepository.save(any(RestauranteEntity.class))).thenAnswer(invocation -> {
@@ -92,7 +94,8 @@ class RestauranteServiceTest {
         );
         var request = new CriarRestauranteRequest(
                 "Restaurante Repetido", "Descricao", "98988887777",
-                new BigDecimal("25.00"), enderecoDto
+                new BigDecimal("25.00"), enderecoDto,
+                "restaurantes/logo.webp", "restaurantes/banner.webp"
         );
 
         when(restauranteRepository.existsByNome("Restaurante Repetido")).thenReturn(true);
@@ -225,7 +228,9 @@ class RestauranteServiceTest {
                 "Restaurante Teste",
                 "98988887777",
                 endereco,
-                new BigDecimal("20.00")
+                new BigDecimal("20.00"),
+                "restaurantes/logo.webp",
+                "restaurantes/banner.webp"
         );
         restaurante.setId(id);
         return restaurante;

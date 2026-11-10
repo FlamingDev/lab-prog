@@ -30,7 +30,15 @@ public record CriarRestauranteRequest(
 
         @NotNull(message = "O endereço é obrigatório")
         @Valid
-        EnderecoRequestDto endereco
+        EnderecoRequestDto endereco,
+
+        @NotBlank(message = "A logo do restaurante é obrigatória")
+        @Size(max = 500, message = "O caminho da logo deve ter no máximo 500 caracteres")
+        String logoUrl,
+
+        @NotBlank(message = "O banner do restaurante é obrigatório")
+        @Size(max = 500, message = "O caminho do banner deve ter no máximo 500 caracteres")
+        String bannerUrl
 ) {
 
     public record EnderecoRequestDto(
@@ -68,7 +76,9 @@ public record CriarRestauranteRequest(
                 this.nome,
                 this.telefone,
                 enderecoEmbeddable,
-                valorMinimo
+                valorMinimo,
+                this.logoUrl,
+                this.bannerUrl
         );
         restaurante.setDescricao(this.descricao);
         return restaurante;

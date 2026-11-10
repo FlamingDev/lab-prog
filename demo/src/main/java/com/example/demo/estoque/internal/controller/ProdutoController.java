@@ -70,7 +70,7 @@ public class ProdutoController {
         return ResponseEntity.ok(ProdutoResponseDto.fromEntity(atualizado));
     }
 
-    @PatchMapping("/{produtoId}/")
+    @PatchMapping("/{produtoId}")
     public ResponseEntity<ProdutoResponseDto> atualizarProduto(
             @PathVariable UUID restauranteId,
             @PathVariable UUID produtoId,

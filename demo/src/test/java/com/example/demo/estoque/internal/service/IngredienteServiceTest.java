@@ -189,7 +189,6 @@ class IngredienteServiceTest {
 
         var request = new AtualizarIngredienteRequest(
                 "Queijo Mussarela",
-                UnidadeMedida.G,
                 new BigDecimal("0.0800")
         );
 
@@ -219,7 +218,6 @@ class IngredienteServiceTest {
 
         var request = new AtualizarIngredienteRequest(
                 "Queijo Prato",
-                UnidadeMedida.G,
                 new BigDecimal("0.0500")
         );
 

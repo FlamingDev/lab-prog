@@ -63,6 +63,8 @@ class RestauranteControllerTest {
                     "descricao": "Melhor comida brasileira",
                     "telefone": "98988776655",
                     "valorMinimoPedido": 20.00,
+                    "logoUrl": "restaurantes/logo.webp",
+                    "bannerUrl": "restaurantes/banner.webp",
                     "endereco": {
                         "cep": "65043-020",
                         "logradouro": "Rua do Sol",
@@ -87,7 +89,9 @@ class RestauranteControllerTest {
                 "Restaurante Bom Sabor",
                 "98988776655",
                 endereco,
-                new BigDecimal("20.00")
+                new BigDecimal("20.00"),
+                "restaurantes/logo.webp",
+                "restaurantes/banner.webp"
         );
         entity.setId(restauranteId);
 
@@ -132,6 +136,8 @@ class RestauranteControllerTest {
                     "descricao": "Descricao",
                     "telefone": "98988776655",
                     "valorMinimoPedido": 10.00,
+                    "logoUrl": "restaurantes/logo.webp",
+                    "bannerUrl": "restaurantes/banner.webp",
                     "endereco": {
                         "cep": "65043-020",
                         "logradouro": "Rua do Sol",

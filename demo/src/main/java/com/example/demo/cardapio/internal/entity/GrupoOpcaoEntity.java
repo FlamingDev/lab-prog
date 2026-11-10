@@ -3,6 +3,7 @@ package com.example.demo.cardapio.internal.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,19 +15,19 @@ public class GrupoOpcaoEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    String nome;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "item_cardapio_id", nullable = false)
+    private ItemCardapioEntity itemCardapio;
 
-    @Column(nullable = false)
-    Boolean obrigatorio;
+    @Column(nullable = false, length = 100)
+    private String nome;
 
     @Column(name = "minimo_escolhas", nullable = false)
-    private Integer minimoEscolhas;
+    private Integer minimoEscolhas = 0;
 
     @Column(name = "maximo_escolhas", nullable = false)
-    private Integer maximoEscolhas;
+    private Integer maximoEscolhas = 1;
 
-    @OneToMany(mappedBy = "grupoOpcao")
-    private List<OpcaoProdutoEntity> opcoesProduto;
+    @OneToMany(mappedBy = "grupoOpcao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OpcaoItemEntity> opcoesItem = new ArrayList<>();
 }
-
