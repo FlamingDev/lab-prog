@@ -99,11 +99,14 @@ public class CardapioService {
         }
 
         CardapioEntity novoCardapio = request.toEntity(restauranteId);
-        List<CategoriaEntity> categoriasDoCardapio = montarCategoriasDoCardapio(
-                novoCardapio,
-                request.categorias()
-        );
-        novoCardapio.definirCategorias(categoriasDoCardapio);
+        if (!novoCardapio.getCategorias().isEmpty()){
+            List<CategoriaEntity> categoriasDoCardapio = montarCategoriasDoCardapio(
+                    novoCardapio,
+                    request.categorias()
+            );
+            novoCardapio.definirCategorias(categoriasDoCardapio);
+        }
+
 
         return cardapioRepository.save(novoCardapio);
     }

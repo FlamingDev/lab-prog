@@ -23,7 +23,6 @@ public record CriarCardapioRequest(
 
         Boolean ativo,
 
-        @NotEmpty(message = "O cardápio deve possuir pelo menos uma categoria")
         @Valid
         List<ItemCategoriaRequest> categorias
 ) {

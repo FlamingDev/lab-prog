@@ -8,6 +8,11 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * Tabela de associação entre ItemCardapio (que associa um produto a um cardápio) e um Pedido.
+ * Representa um item de um cardápio, escolhido para compor um pedido.
+ */
+
 @Entity
 @Table(name = "item_pedido")
 @Getter
@@ -21,12 +26,15 @@ public class ItemPedidoEntity {
     @JoinColumn(name = "pedido_id", nullable = false)
     private PedidoEntity pedido;
 
-    @Column(name = "produto_cardapio_id", nullable = false)
-    private UUID produtoCardapioId;
+    @Column(name = "item_cardapio_id", nullable = false)
+    private UUID itemCardapioId;
 
     @OneToMany(mappedBy = "itemPedido", fetch = FetchType.LAZY)
     private List<OpcaoItemPedidoEntity> opcoesItemPedido = new ArrayList<>();
 
+    /**
+     * Snapshot dos atributos do item para evitar corrupção de histórico
+     */
     @Column(name = "preco_item", nullable = false, precision = 10, scale = 2)
     private BigDecimal precoItem;
 
@@ -36,6 +44,9 @@ public class ItemPedidoEntity {
     @Column(name = "nome_item", nullable = false)
     private String nomeItem;
 
+    /**
+     * Valor total do item no pedido = precoItem * quantidadeItem
+     */
     @Column(name = "subtotal_item", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotalItem = BigDecimal.ZERO;
 
@@ -43,21 +54,13 @@ public class ItemPedidoEntity {
     private String observacao;
 
     public ItemPedidoEntity(
-            UUID produtoCardapioId,
+            UUID itemCardapioId,
             String nomeItem,
             BigDecimal precoItem,
             int quantidadeItem,
             String observacao
     ) {
-        if (produtoCardapioId == null) throw new IllegalArgumentException("Produto ID é obrigatório.");
-        if (nomeItem == null || nomeItem.isBlank())
-            throw new IllegalArgumentException("Nome do produto é obrigatório.");
-        if (precoItem == null || precoItem.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Preço unitário deve ser positivo.");
-        }
-        if (quantidadeItem <= 0) throw new IllegalArgumentException("Quantidade deve ser maior que zero.");
-
-        this.produtoCardapioId = produtoCardapioId;
+        this.itemCardapioId = itemCardapioId;
         this.nomeItem = nomeItem;
         this.precoItem = precoItem;
         this.quantidadeItem = quantidadeItem;
@@ -73,11 +76,10 @@ public class ItemPedidoEntity {
     public boolean ehIgualA(ItemPedidoEntity itemPedido){
         if (itemPedido == null) return false;
 
-
         boolean opcoesItemIguais
                 = new HashSet<>(opcoesItemPedido).equals(new HashSet<>(itemPedido.opcoesItemPedido));
 
-        return Objects.equals(produtoCardapioId, itemPedido.produtoCardapioId)
+        return Objects.equals(itemCardapioId, itemPedido.itemCardapioId)
                 && Objects.equals(observacao, itemPedido.observacao)
                 && opcoesItemIguais;
     }
@@ -91,14 +93,14 @@ public class ItemPedidoEntity {
         this.pedido = pedido;
     }
 
-    public void adicionarOpcao(OpcaoItemPedidoEntity opcao) {
+    /*public void adicionarOpcao(OpcaoItemPedidoEntity opcao) {
         if (opcao == null) throw new IllegalArgumentException("Opção não pode ser nula");
         this.opcoesItemPedido.add(opcao);
         opcao.vincularAoItem(this);
         adicionarOpcaoAoSubtotal(opcao);
-    }
+    }*/
 
-    private void adicionarOpcaoAoSubtotal(OpcaoItemPedidoEntity opcao) {
+    /*private void adicionarOpcaoAoSubtotal(OpcaoItemPedidoEntity opcao) {
         subtotalItem = subtotalItem.add(opcao.calcularSubtotal().multiply(BigDecimal.valueOf(quantidadeItem)));
-    }
+    }*/
 }
