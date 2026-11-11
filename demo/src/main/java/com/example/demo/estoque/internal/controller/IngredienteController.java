@@ -36,6 +36,7 @@ public class IngredienteController {
             @PathVariable UUID restauranteId,
             @RequestBody @Valid CriarIngredienteRequest request
     ) {
+        // todo validar quantidade do ingrediente com unidade de medida
         IngredienteEntity salvo = ingredienteService.criarIngrediente(restauranteId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(IngredienteResponseDto.fromEntity(salvo));

@@ -30,7 +30,7 @@ public class CardapioEntity {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @Column(name = "banner_url", length = 500)
+    @Column(name = "banner_uri", length = 500)
     private String bannerUri;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

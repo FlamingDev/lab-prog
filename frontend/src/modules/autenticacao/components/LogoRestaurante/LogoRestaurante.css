@@ -1,0 +1,30 @@
+.logo-restaurante {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 14px;
+  user-select: none;
+}
+
+.logo-restaurante__icone {
+  width: 74px;
+  height: 68px;
+}
+
+.logo-restaurante__nome {
+  margin-top: -4px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cor-primaria-escura);
+  letter-spacing: 0.01em;
+}
+
+.logo-restaurante__sublinhado {
+  width: 48px;
+  height: 2px;
+  margin-top: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--cor-destaque), transparent);
+}

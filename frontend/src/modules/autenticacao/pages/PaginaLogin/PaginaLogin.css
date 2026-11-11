@@ -1,0 +1,38 @@
+.pagina-login {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(
+    135deg,
+    #1e3550 0%,
+    #284260 48%,
+    #52647c 74%,
+    #f6e0c6 100%
+  );
+}
+
+.pagina-login__cartao {
+  max-width: 390px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pagina-login__cabecalho {
+  text-align: center;
+}
+
+.pagina-login__titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cor-primaria-escura);
+  margin-bottom: 6px;
+}
+
+.pagina-login__subtitulo {
+  font-size: 0.85rem;
+  color: var(--cor-texto-secundario);
+}

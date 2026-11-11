@@ -1,0 +1,26 @@
+:root {
+  --cor-primaria-escura: #1b365d;
+  --cor-texto-secundario: #64748b;
+  --cor-destaque: #eb980a;
+  --cor-destaque-hover: #d48806;
+  --cor-fundo-input: #f8f9fb;
+  --cor-borda-input: #eff2f6;
+  --cor-branco: #ffffff;
+  --fonte-principal: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  font-family: var(--fonte-principal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

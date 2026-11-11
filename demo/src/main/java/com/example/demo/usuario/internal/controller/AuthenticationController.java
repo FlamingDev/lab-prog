@@ -3,6 +3,7 @@ package com.example.demo.usuario.internal.controller;
 import infra.security.JwtService;
 import com.example.demo.usuario.internal.dto.AuthenticationDto;
 import com.example.demo.usuario.internal.dto.CriarUsuarioRequestDto;
+import com.example.demo.usuario.internal.dto.LoginResponseDto;
 import com.example.demo.usuario.internal.dto.UsuarioResponseDto;
 import com.example.demo.usuario.internal.entity.UsuarioEntity;
 import com.example.demo.usuario.internal.service.UsuarioService;
@@ -28,16 +29,17 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid AuthenticationDto dto,
-                                      HttpServletRequest request,
-                                      HttpServletResponse response){
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid AuthenticationDto dto,
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response){
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.emailOuCpf(), dto.senha());
         var auth = authenticationManager.authenticate(usernamePassword);
 
         var token = jwtService.generateToken(auth);
 
+        // TODO expiration time
         response.addHeader("token", token);
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
     @PostMapping("/cadastro")
@@ -48,4 +50,4 @@ public class AuthenticationController {
                 .body(UsuarioResponseDto.fromEntity(salvo));
     }
 
-}
+}

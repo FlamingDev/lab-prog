@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuarioController {
     UsuarioService service;
 
+    // TODO desativar/ativar usuarios
     @GetMapping("/teste")
     public ResponseEntity<String> teste(Authentication authentication) {
         return ResponseEntity.ok(

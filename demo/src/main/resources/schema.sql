@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS cardapio (
     restaurante_id UUID NOT NULL,
     nome VARCHAR(100) NOT NULL,
     descricao TEXT,
-    banner_url VARCHAR(500),
+    banner_uri VARCHAR(500),
     ativo BOOLEAN NOT NULL DEFAULT true,
     data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cardapio_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id)
@@ -244,25 +244,25 @@ CREATE TABLE IF NOT EXISTS pedido (
 CREATE TABLE IF NOT EXISTS item_pedido (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pedido_id UUID NOT NULL,
-    produto_cardapio_id UUID NOT NULL,
+    item_cardapio_id UUID NOT NULL,
     nome_item VARCHAR(120) NOT NULL,
     preco_item NUMERIC(10, 2) NOT NULL,
     quantidade_item INTEGER NOT NULL,
     subtotal_item NUMERIC(10, 2) NOT NULL,
     observacao VARCHAR(255),
     CONSTRAINT fk_item_pedido_pedido FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
-    CONSTRAINT fk_item_pedido_item_cardapio FOREIGN KEY (produto_cardapio_id) REFERENCES item_cardapio(id)
+    CONSTRAINT fk_item_pedido_item_cardapio FOREIGN KEY (item_cardapio_id) REFERENCES item_cardapio(id)
 );
 
 CREATE TABLE IF NOT EXISTS opcao_item_pedido (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     item_pedido_id UUID NOT NULL,
-    opcao_produto_id UUID NOT NULL,
+    opcao_item_id UUID NOT NULL,
     nome_opcao VARCHAR(100) NOT NULL,
     preco_opcao NUMERIC(10, 2) NOT NULL,
     quantidade_opcao INTEGER NOT NULL,
-    CONSTRAINT fk_opcao_item_item_pedido FOREIGN KEY (item_pedido_id) REFERENCES item_pedido(id) ON DELETE CASCADE,
-    CONSTRAINT fk_opcao_item_opcao_item FOREIGN KEY (opcao_produto_id) REFERENCES opcao_item(id)
+    CONSTRAINT fk_opcao_item_pedido FOREIGN KEY (item_pedido_id) REFERENCES item_pedido(id) ON DELETE CASCADE,
+    CONSTRAINT fk_opcao_item_opcao_item FOREIGN KEY (opcao_item_id) REFERENCES opcao_item(id)
 );
 
 -- SPRING MODULITH
