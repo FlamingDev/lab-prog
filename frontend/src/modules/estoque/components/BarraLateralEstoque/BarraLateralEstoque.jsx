@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/modules/autenticacao/contexts/AuthContext';
 import './BarraLateralEstoque.css';
 
@@ -8,6 +9,15 @@ export function BarraLateralEstoque({
   recolhida = false,
 }) {
   const { usuarioLogado, encerrarSessao } = useAuth();
+  const navigate = useNavigate();
+
+  function selecionarSecaoEstoque(aba) {
+    if (aoMudarAba) {
+      aoMudarAba(aba);
+    } else {
+      navigate('/estoque', { state: { aba } });
+    }
+  }
 
   return (
     <aside
@@ -54,9 +64,34 @@ export function BarraLateralEstoque({
             <button
               type="button"
               className={`barra-lateral__item ${
+                abaAtiva === 'categorias' ? 'barra-lateral__item--ativo' : ''
+              }`.trim()}
+              onClick={() => navigate('/categorias')}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="17"
+                height="17"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+              {!recolhida && <span>Categorias</span>}
+            </button>
+          </li>
+
+          <li>
+            <button
+              type="button"
+              className={`barra-lateral__item ${
                 abaAtiva === 'ingredientes' ? 'barra-lateral__item--ativo' : ''
               }`.trim()}
-              onClick={() => aoMudarAba('ingredientes')}
+              onClick={() => selecionarSecaoEstoque('ingredientes')}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -82,7 +117,7 @@ export function BarraLateralEstoque({
               className={`barra-lateral__item ${
                 abaAtiva === 'produtos' ? 'barra-lateral__item--ativo' : ''
               }`.trim()}
-              onClick={() => aoMudarAba('produtos')}
+              onClick={() => selecionarSecaoEstoque('produtos')}
             >
               <svg
                 viewBox="0 0 24 24"

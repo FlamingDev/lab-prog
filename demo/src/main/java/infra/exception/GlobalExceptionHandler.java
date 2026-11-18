@@ -1,5 +1,8 @@
 package infra.exception;
 
+import com.example.demo.cardapio.internal.exception.CardapioException;
+import com.example.demo.cardapio.internal.exception.CardapioNaoEncontradoException;
+import com.example.demo.cardapio.internal.exception.CategoriaNaoEncontradaException;
 import com.example.demo.estoque.internal.exception.EstoqueException;
 import com.example.demo.estoque.internal.exception.IngredienteNaoEncontradoException;
 import com.example.demo.estoque.internal.exception.ProdutoNaoEncontradoException;
@@ -161,6 +164,42 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(corpo);
+    }
+
+    @ExceptionHandler(CardapioNaoEncontradoException.class)
+    public ResponseEntity<ErroRespostaDto> handleCardapioNaoEncontrado(CardapioNaoEncontradoException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(CategoriaNaoEncontradaException.class)
+    public ResponseEntity<ErroRespostaDto> handleCategoriaNaoEncontrada(CategoriaNaoEncontradaException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(corpo);
+    }
+
+    @ExceptionHandler(CardapioException.class)
+    public ResponseEntity<ErroRespostaDto> handleCardapioException(CardapioException ex) {
+        ErroRespostaDto corpo = new ErroRespostaDto(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
     }
 }
 

@@ -7,26 +7,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "categoria")
+@Table(
+        name = "categoria",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_categoria_restaurante_nome", columnNames = {"restaurante_id", "nome"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CategoriaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "restaurante_id", nullable = false)
+    private UUID restauranteId;
+
     @Column(nullable = false, length = 80)
     private String nome;
-
-    @Column(nullable = false)
-    private Boolean ativo = true;
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
@@ -34,41 +38,13 @@ public class CategoriaEntity {
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private OffsetDateTime dataCriacao = OffsetDateTime.now();
 
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("prioridadeExibicao DESC")
-    private List<ItemCardapioEntity> itensCardapio = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "cardapio_id", nullable = false)
-    private CardapioEntity cardapio;
-
-    // quanto maior, mais cedo aparece no cardapio
-    @Column(name = "prioridade_exibicao", nullable = false)
-    private Integer prioridadeExibicao = 0;
-
-    public CategoriaEntity(
-            CardapioEntity cardapio,
-            String nome,
-            String descricao,
-            Integer prioridadeExibicao,
-            Boolean ativo
-    ) {
-        this.cardapio = cardapio;
-        this.nome = nome;
+    public CategoriaEntity(UUID restauranteId, String nome, String descricao) {
+        this.restauranteId = Objects.requireNonNull(restauranteId, "Restaurante é obrigatório.");
+        this.nome = Objects.requireNonNull(nome, "Nome da categoria é obrigatório.");
         this.descricao = descricao;
-        this.prioridadeExibicao = prioridadeExibicao;
-        this.ativo = ativo != null ? ativo : true;
     }
 
-    public CategoriaEntity(CardapioEntity cardapio, String nome, String descricao, Integer prioridadeExibicao) {
-        this(cardapio, nome, descricao, prioridadeExibicao, true);
-    }
-
-    public void ativar() {
-        this.ativo = true;
-    }
-
-    public void desativar() {
-        this.ativo = false;
+    public CategoriaEntity(UUID restauranteId, String nome) {
+        this(restauranteId, nome, null);
     }
 }

@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoriaRepository extends JpaRepository<CategoriaEntity, UUID> {
-    boolean existsByCardapioIdAndNomeIgnoreCase(UUID cardapioId, String nome);
+    boolean existsByRestauranteIdAndNomeIgnoreCase(UUID restauranteId, String nome);
 
-    List<CategoriaEntity> findAllByCardapioIdOrderByPrioridadeExibicaoDesc(UUID cardapioId);
+    List<CategoriaEntity> findAllByRestauranteIdOrderByDataCriacaoDesc(UUID restauranteId);
 
-    Optional<CategoriaEntity> findByIdAndCardapioId(UUID id, UUID cardapioId);
+    Optional<CategoriaEntity> findByIdAndRestauranteId(UUID id, UUID restauranteId);
 }

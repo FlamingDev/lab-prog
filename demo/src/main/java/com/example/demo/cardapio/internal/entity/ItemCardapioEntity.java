@@ -28,13 +28,13 @@ public class ItemCardapioEntity {
     private Boolean disponivel = true;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private CategoriaEntity categoria;
+    @JoinColumn(name = "cardapio_categoria_id", nullable = false)
+    private CardapioCategoriaEntity cardapioCategoria;
 
     @OneToMany(mappedBy = "itemCardapio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GrupoOpcaoEntity> gruposOpcao = new ArrayList<>();
 
-    @Column(name = "imagem_url", length = 500)
+    @Column(name = "imagem_uri", length = 500)
     private String imagemUrl;
 
     @Column(columnDefinition = "TEXT", nullable = false)

@@ -131,27 +131,37 @@ CREATE TABLE IF NOT EXISTS cardapio (
 
 CREATE TABLE IF NOT EXISTS categoria (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cardapio_id UUID NOT NULL,
+    restaurante_id UUID NOT NULL,
     nome VARCHAR(80) NOT NULL,
     descricao TEXT,
+    data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_categoria_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id),
+    CONSTRAINT uk_categoria_restaurante_nome UNIQUE (restaurante_id, nome)
+);
+
+CREATE TABLE IF NOT EXISTS cardapio_categoria (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cardapio_id UUID NOT NULL,
+    categoria_id UUID NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT true,
     prioridade_exibicao INTEGER NOT NULL DEFAULT 0,
-    data_criacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_categoria_cardapio FOREIGN KEY (cardapio_id) REFERENCES cardapio(id) ON DELETE CASCADE
+    CONSTRAINT fk_cardapio_categoria_cardapio FOREIGN KEY (cardapio_id) REFERENCES cardapio(id) ON DELETE CASCADE,
+    CONSTRAINT fk_cardapio_categoria_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id),
+    CONSTRAINT uk_cardapio_categoria UNIQUE (cardapio_id, categoria_id)
 );
 
 CREATE TABLE IF NOT EXISTS item_cardapio (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    categoria_id UUID NOT NULL,
+    cardapio_categoria_id UUID NOT NULL,
     produto_id UUID NOT NULL,
     nome_comercial VARCHAR(120) NOT NULL,
     descricao TEXT NOT NULL,
-    imagem_url VARCHAR(500),
+    imagem_uri VARCHAR(500),
     preco NUMERIC(10, 2) NOT NULL,
     tempo_preparo_minutos INTEGER NOT NULL,
     disponivel BOOLEAN NOT NULL DEFAULT true,
     prioridade_exibicao INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT fk_item_cardapio_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE CASCADE,
+    CONSTRAINT fk_item_cardapio_cardapio_categoria FOREIGN KEY (cardapio_categoria_id) REFERENCES cardapio_categoria(id) ON DELETE CASCADE,
     CONSTRAINT fk_item_cardapio_produto FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
 

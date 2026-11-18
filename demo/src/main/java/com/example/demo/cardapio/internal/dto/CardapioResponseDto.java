@@ -1,7 +1,7 @@
 package com.example.demo.cardapio.internal.dto;
 
+import com.example.demo.cardapio.internal.entity.CardapioCategoriaEntity;
 import com.example.demo.cardapio.internal.entity.CardapioEntity;
-import com.example.demo.cardapio.internal.entity.CategoriaEntity;
 import com.example.demo.common.StorageUrlResolver;
 
 import java.time.OffsetDateTime;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 /**
  * DTO de resposta voltado para o GERENCIAMENTO pelo administrador do restaurante.
- * Inclui todos os cardápios e categorias (ativos e inativos) e metadados administrativos.
+ * Inclui todos os cardápios e suas categorias vinculadas (ativas e inativas) e metadados administrativos.
  */
 public record CardapioResponseDto(
         UUID id,
@@ -24,20 +24,22 @@ public record CardapioResponseDto(
 ) {
     public record CategoriaGerenciamentoDto(
             UUID id,
+            UUID categoriaId,
             String nome,
             String descricao,
             Boolean ativo,
             Integer prioridadeExibicao,
             OffsetDateTime dataCriacao
     ) {
-        public static CategoriaGerenciamentoDto fromEntity(CategoriaEntity entity) {
+        public static CategoriaGerenciamentoDto fromEntity(CardapioCategoriaEntity entity) {
             return new CategoriaGerenciamentoDto(
                     entity.getId(),
-                    entity.getNome(),
-                    entity.getDescricao(),
+                    entity.getCategoria().getId(),
+                    entity.getCategoria().getNome(),
+                    entity.getCategoria().getDescricao(),
                     entity.getAtivo(),
                     entity.getPrioridadeExibicao(),
-                    entity.getDataCriacao()
+                    entity.getCategoria().getDataCriacao()
             );
         }
     }

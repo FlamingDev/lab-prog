@@ -1,17 +1,18 @@
 package com.example.demo.cardapio.internal.service;
 
 import com.example.demo.cardapio.internal.dto.AtualizarCardapioRequest;
-import com.example.demo.cardapio.internal.dto.AtualizarCategoriaRequest;
+import com.example.demo.cardapio.internal.dto.AtualizarCategoriaNoCardapioRequest;
 import com.example.demo.cardapio.internal.dto.CriarCardapioRequest;
-import com.example.demo.cardapio.internal.dto.CriarCardapioRequest.ItemCategoriaRequest;
+import com.example.demo.cardapio.internal.dto.CriarCardapioRequest.CategoriaCardapioRequest;
+import com.example.demo.cardapio.internal.entity.CardapioCategoriaEntity;
 import com.example.demo.cardapio.internal.entity.CardapioEntity;
 import com.example.demo.cardapio.internal.entity.CategoriaEntity;
 import com.example.demo.cardapio.internal.exception.CardapioJaCadastradoException;
 import com.example.demo.cardapio.internal.exception.CardapioNaoEncontradoException;
 import com.example.demo.cardapio.internal.exception.CategoriaJaCadastradaException;
 import com.example.demo.cardapio.internal.exception.CategoriaNaoEncontradaException;
+import com.example.demo.cardapio.internal.repository.CardapioCategoriaRepository;
 import com.example.demo.cardapio.internal.repository.CardapioRepository;
-import com.example.demo.cardapio.internal.repository.CategoriaRepository;
 import com.example.demo.restaurant.RestaurantApi;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,12 @@ import java.util.UUID;
 public class CardapioService {
 
     private final CardapioRepository cardapioRepository;
-    private final CategoriaRepository categoriaRepository;
+    private final CardapioCategoriaRepository cardapioCategoriaRepository;
+    private final CategoriaService categoriaService;
     private final RestaurantApi restaurantApi;
 
     // =================================================================================================
-    // VISÃO DO CLIENTE (VITRINE): Apenas cardápios ativos e categorias ativas
+    // VISÃO DO CLIENTE (VITRINE): Apenas cardápios ativos e categorias ativas no cardápio
     // =================================================================================================
 
     /**
@@ -44,7 +46,7 @@ public class CardapioService {
         validarRestauranteExistente(restauranteId);
         List<CardapioEntity> cardapios = cardapioRepository.findAllByRestauranteIdAndAtivoTrue(restauranteId);
         cardapios.forEach(cardapio ->
-                cardapio.getCategorias().removeIf(categoria -> !Boolean.TRUE.equals(categoria.getAtivo()))
+                cardapio.getCategorias().removeIf(cc -> !Boolean.TRUE.equals(cc.getAtivo()))
         );
         return cardapios;
     }
@@ -59,13 +61,17 @@ public class CardapioService {
         if (!Boolean.TRUE.equals(cardapio.getAtivo())) {
             throw new CardapioNaoEncontradoException("Este cardápio não está disponível no momento.");
         }
-        cardapio.getCategorias().removeIf(categoria -> !Boolean.TRUE.equals(categoria.getAtivo()));
+        cardapio.getCategorias().removeIf(cc -> !Boolean.TRUE.equals(cc.getAtivo()));
         return cardapio;
     }
 
+    // =================================================================================================
+    // GERENCIAMENTO (ADMIN): Cardápios e associações com categorias
+    // =================================================================================================
+
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Lista todos os cardápios do restaurante (ativos e inativos) com todas as suas categorias.
+     * Lista todos os cardápios do restaurante (ativos e inativos) com todas as suas categorias vinculadas.
      */
     @Transactional(readOnly = true)
     public List<CardapioEntity> listarCardapiosParaGerenciamento(UUID restauranteId) {
@@ -75,7 +81,7 @@ public class CardapioService {
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Busca um cardápio por ID (mesmo que inativo) com todas as suas categorias (ativas e inativas).
+     * Busca um cardápio por ID (mesmo que inativo) com todas as suas categorias vinculadas.
      */
     @Transactional(readOnly = true)
     public CardapioEntity buscarCardapioParaGerenciamento(UUID restauranteId, UUID cardapioId) {
@@ -84,7 +90,7 @@ public class CardapioService {
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Cria um novo cardápio juntamente com suas categorias iniciais.
+     * Cria um novo cardápio (podendo nascer vazio ou já vinculando categorias existentes do restaurante).
      */
     @Transactional
     public CardapioEntity criarCardapio(UUID restauranteId, CriarCardapioRequest request) {
@@ -99,14 +105,14 @@ public class CardapioService {
         }
 
         CardapioEntity novoCardapio = request.toEntity(restauranteId);
-        if (!novoCardapio.getCategorias().isEmpty()){
-            List<CategoriaEntity> categoriasDoCardapio = montarCategoriasDoCardapio(
+        if (request.categorias() != null && !request.categorias().isEmpty()) {
+            List<CardapioCategoriaEntity> vinculos = montarVinculosCategorias(
+                    restauranteId,
                     novoCardapio,
                     request.categorias()
             );
-            novoCardapio.definirCategorias(categoriasDoCardapio);
+            novoCardapio.definirCategorias(vinculos);
         }
-
 
         return cardapioRepository.save(novoCardapio);
     }
@@ -168,125 +174,115 @@ public class CardapioService {
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Adiciona uma nova categoria a um cardápio existente.
+     * Vincula uma categoria existente do restaurante a um cardápio, com prioridade e status próprios.
      */
     @Transactional
-    public CategoriaEntity adicionarCategoria(
+    public CardapioCategoriaEntity adicionarCategoriaAoCardapio(
             UUID restauranteId,
             UUID cardapioId,
-            ItemCategoriaRequest request
+            CategoriaCardapioRequest request
     ) {
-        if (request == null) {
-            throw new IllegalArgumentException("Os dados da categoria são obrigatórios.");
+        if (request == null || request.categoriaId() == null) {
+            throw new IllegalArgumentException("Os dados do vínculo da categoria são obrigatórios.");
         }
 
         CardapioEntity cardapio = consultaCardapioSeValido(restauranteId, cardapioId);
+        CategoriaEntity categoria = categoriaService.buscarPorId(restauranteId, request.categoriaId());
 
-        if (categoriaRepository.existsByCardapioIdAndNomeIgnoreCase(cardapioId, request.nome())) {
-            throw new CategoriaJaCadastradaException("Já existe uma categoria com esse nome neste cardápio.");
+        if (cardapioCategoriaRepository.existsByCardapioIdAndCategoriaId(cardapioId, categoria.getId())) {
+            throw new CategoriaJaCadastradaException("Esta categoria já está vinculada a este cardápio.");
         }
 
-        CategoriaEntity novaCategoria = request.toEntity(cardapio);
-        cardapio.adicionarCategoria(novaCategoria);
+        CardapioCategoriaEntity novoVinculo = request.toEntity(cardapio, categoria);
+        cardapio.adicionarCategoria(novoVinculo);
 
-        return categoriaRepository.save(novaCategoria);
+        return cardapioCategoriaRepository.save(novoVinculo);
     }
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Atualiza nome, descrição ou prioridade de exibição de uma categoria.
+     * Customiza prioridade de exibição ou status ativo de uma categoria em um cardápio específico.
      */
     @Transactional
-    public CategoriaEntity atualizarCategoria(
+    public CardapioCategoriaEntity atualizarCategoriaNoCardapio(
             UUID restauranteId,
             UUID cardapioId,
             UUID categoriaId,
-            AtualizarCategoriaRequest request
+            AtualizarCategoriaNoCardapioRequest request
     ) {
         if (request == null) {
-            throw new IllegalArgumentException("Os dados para atualização da categoria são obrigatórios.");
+            throw new IllegalArgumentException("Os dados para atualização da categoria no cardápio são obrigatórios.");
         }
 
-        CategoriaEntity categoria = consultaCategoriaSeValida(restauranteId, cardapioId, categoriaId);
-
-        if (request.nome() != null && !request.nome().isBlank()) {
-            boolean mudouNome = !categoria.getNome().equalsIgnoreCase(request.nome());
-            if (mudouNome && categoriaRepository.existsByCardapioIdAndNomeIgnoreCase(cardapioId, request.nome())) {
-                throw new CategoriaJaCadastradaException("Já existe uma categoria com esse nome neste cardápio.");
-            }
-            categoria.setNome(request.nome());
-        }
-
-        if (request.descricao() != null) {
-            categoria.setDescricao(request.descricao());
-        }
+        CardapioCategoriaEntity vinculo = consultaVinculoSeValido(restauranteId, cardapioId, categoriaId);
 
         if (request.prioridadeExibicao() != null) {
-            categoria.setPrioridadeExibicao(request.prioridadeExibicao());
+            vinculo.setPrioridadeExibicao(request.prioridadeExibicao());
         }
 
-        return categoria;
+        if (request.ativo() != null) {
+            vinculo.setAtivo(request.ativo());
+        }
+
+        return vinculo;
     }
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Ativa uma categoria específica do cardápio.
+     * Ativa uma categoria específica dentro de um cardápio.
      */
     @Transactional
-    public void ativarCategoria(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
-        CategoriaEntity categoria = consultaCategoriaSeValida(restauranteId, cardapioId, categoriaId);
-        categoria.ativar();
+    public void ativarCategoriaNoCardapio(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
+        CardapioCategoriaEntity vinculo = consultaVinculoSeValido(restauranteId, cardapioId, categoriaId);
+        vinculo.ativar();
     }
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Desativa uma categoria específica do cardápio (ocultando-a da vitrine do cliente sem alterar o estado individual dos itens).
+     * Desativa uma categoria específica dentro de um cardápio.
      */
     @Transactional
-    public void desativarCategoria(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
-        CategoriaEntity categoria = consultaCategoriaSeValida(restauranteId, cardapioId, categoriaId);
-        categoria.desativar();
+    public void desativarCategoriaNoCardapio(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
+        CardapioCategoriaEntity vinculo = consultaVinculoSeValido(restauranteId, cardapioId, categoriaId);
+        vinculo.desativar();
     }
 
     /**
      * [GERENCIAMENTO - ADMIN]
-     * Remove uma categoria do cardápio.
+     * Desvincula uma categoria de um cardápio (mantendo a categoria pura cadastrada no restaurante).
      */
     @Transactional
-    public void removerCategoria(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
+    public void removerCategoriaDoCardapio(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
         CardapioEntity cardapio = consultaCardapioSeValido(restauranteId, cardapioId);
-        CategoriaEntity categoria = consultaCategoriaSeValida(restauranteId, cardapioId, categoriaId);
-        cardapio.removerCategoria(categoria);
+        CardapioCategoriaEntity vinculo = consultaVinculoSeValido(restauranteId, cardapioId, categoriaId);
+        cardapio.removerCategoria(vinculo);
     }
 
     // ------------------------------ MÉTODOS PRIVADOS/AUXILIARES -----------------------------------
 
-    private List<CategoriaEntity> montarCategoriasDoCardapio(
+    private List<CardapioCategoriaEntity> montarVinculosCategorias(
+            UUID restauranteId,
             CardapioEntity cardapio,
-            List<ItemCategoriaRequest> categoriasRequest
+            List<CategoriaCardapioRequest> categoriasRequest
     ) {
-        validarListaDeCategoriasNaoVazia(categoriasRequest);
         validarListaNaoTemCategoriasRepetidas(categoriasRequest);
 
         return categoriasRequest.stream()
-                .map(item -> item.toEntity(cardapio))
+                .map(item -> {
+                    CategoriaEntity categoria = categoriaService.buscarPorId(restauranteId, item.categoriaId());
+                    return item.toEntity(cardapio, categoria);
+                })
                 .toList();
     }
 
-    private void validarListaDeCategoriasNaoVazia(List<ItemCategoriaRequest> categoriasRequest) {
-        if (categoriasRequest == null || categoriasRequest.isEmpty()) {
-            throw new IllegalArgumentException("O cardápio deve possuir pelo menos uma categoria.");
-        }
-    }
-
-    private void validarListaNaoTemCategoriasRepetidas(List<ItemCategoriaRequest> categoriasRequest) {
-        Set<String> nomesUnicos = new HashSet<>();
-        for (ItemCategoriaRequest item : categoriasRequest) {
-            if (item == null || item.nome() == null || item.nome().isBlank()) {
-                throw new IllegalArgumentException("O nome de todas as categorias do cardápio é obrigatório.");
+    private void validarListaNaoTemCategoriasRepetidas(List<CategoriaCardapioRequest> categoriasRequest) {
+        Set<UUID> idsUnicos = new HashSet<>();
+        for (CategoriaCardapioRequest item : categoriasRequest) {
+            if (item == null || item.categoriaId() == null) {
+                throw new IllegalArgumentException("O id de todas as categorias informadas é obrigatório.");
             }
-            if (!nomesUnicos.add(item.nome().trim().toLowerCase())) {
-                throw new CategoriaJaCadastradaException("Não é permitido informar categorias com o mesmo nome no mesmo cardápio.");
+            if (!idsUnicos.add(item.categoriaId())) {
+                throw new CategoriaJaCadastradaException("Não é permitido vincular a mesma categoria mais de uma vez no mesmo cardápio.");
             }
         }
     }
@@ -312,15 +308,15 @@ public class CardapioService {
                 ));
     }
 
-    private CategoriaEntity consultaCategoriaSeValida(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
+    private CardapioCategoriaEntity consultaVinculoSeValido(UUID restauranteId, UUID cardapioId, UUID categoriaId) {
         consultaCardapioSeValido(restauranteId, cardapioId);
         if (categoriaId == null) {
             throw new IllegalArgumentException("Categoria não pode ser nula.");
         }
 
-        return categoriaRepository.findByIdAndCardapioId(categoriaId, cardapioId)
+        return cardapioCategoriaRepository.findByCardapioIdAndCategoriaId(cardapioId, categoriaId)
                 .orElseThrow(() -> new CategoriaNaoEncontradaException(
-                        "Não foi encontrada uma categoria com esse id neste cardápio."
+                        "Não foi encontrada uma categoria vinculada com esse id neste cardápio."
                 ));
     }
 }

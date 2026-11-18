@@ -1,7 +1,7 @@
 package com.example.demo.cardapio.internal.dto;
 
+import com.example.demo.cardapio.internal.entity.CardapioCategoriaEntity;
 import com.example.demo.cardapio.internal.entity.CardapioEntity;
-import com.example.demo.cardapio.internal.entity.CategoriaEntity;
 import com.example.demo.cardapio.internal.entity.GrupoOpcaoEntity;
 import com.example.demo.cardapio.internal.entity.ItemCardapioEntity;
 import com.example.demo.cardapio.internal.entity.OpcaoItemEntity;
@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /**
  * DTO de resposta voltado para a VISUALIZAÇÃO DO CLIENTE (Vitrine).
- * Contém apenas cardápios ativos, categorias ativas e toda a árvore de itens,
+ * Contém apenas cardápios ativos, categorias ativas no cardápio e toda a árvore de itens,
  * grupos de opção e opções de item.
  */
 public record CardapioVitrineResponseDto(
@@ -30,7 +30,7 @@ public record CardapioVitrineResponseDto(
             String descricao,
             List<ItemCardapioVitrineDto> itens
     ) {
-        public static CategoriaVitrineDto fromEntity(CategoriaEntity entity) {
+        public static CategoriaVitrineDto fromEntity(CardapioCategoriaEntity entity) {
             List<ItemCardapioVitrineDto> itensDto = entity.getItensCardapio() != null
                     ? entity.getItensCardapio().stream()
                             .map(ItemCardapioVitrineDto::fromEntity)
@@ -38,9 +38,9 @@ public record CardapioVitrineResponseDto(
                     : List.of();
 
             return new CategoriaVitrineDto(
-                    entity.getId(),
-                    entity.getNome(),
-                    entity.getDescricao(),
+                    entity.getCategoria().getId(),
+                    entity.getCategoria().getNome(),
+                    entity.getCategoria().getDescricao(),
                     itensDto
             );
         }
@@ -121,7 +121,7 @@ public record CardapioVitrineResponseDto(
     public static CardapioVitrineResponseDto fromEntity(CardapioEntity entity) {
         List<CategoriaVitrineDto> categoriasAtivasDto = entity.getCategorias() != null
                 ? entity.getCategorias().stream()
-                        .filter(categoria -> Boolean.TRUE.equals(categoria.getAtivo()))
+                        .filter(cardapioCategoria -> Boolean.TRUE.equals(cardapioCategoria.getAtivo()))
                         .map(CategoriaVitrineDto::fromEntity)
                         .toList()
                 : List.of();

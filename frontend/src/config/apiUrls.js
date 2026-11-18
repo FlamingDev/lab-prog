@@ -52,6 +52,13 @@ export const API_URLS = {
       `${API_BASE_URL}/api/restaurantes/${restauranteId}/produtos/${produtoId}/ingredientes`,
   },
 
+  categorias: {
+    base: (restauranteId) =>
+      `${API_BASE_URL}/api/restaurantes/${restauranteId}/categorias`,
+    porId: (restauranteId, categoriaId) =>
+      `${API_BASE_URL}/api/restaurantes/${restauranteId}/categorias/${categoriaId}`,
+  },
+
   cardapios: {
     base: (restauranteId) =>
       `${API_BASE_URL}/api/restaurantes/${restauranteId}/cardapios`,

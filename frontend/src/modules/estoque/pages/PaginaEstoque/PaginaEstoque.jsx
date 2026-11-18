@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button, Toast } from '@/components/ui';
 import { useAuth } from '@/modules/autenticacao/contexts/AuthContext';
 import { BarraLateralEstoque } from '@/modules/estoque/components/BarraLateralEstoque/BarraLateralEstoque';
@@ -24,9 +25,12 @@ import './PaginaEstoque.css';
 
 export function PaginaEstoque() {
   const { token } = useAuth();
+  const location = useLocation();
 
   const [sidebarRecolhida, setSidebarRecolhida] = useState(false);
-  const [abaAtiva, setAbaAtiva] = useState('ingredientes');
+  const [abaAtiva, setAbaAtiva] = useState(
+    location.state?.aba === 'produtos' ? 'produtos' : 'ingredientes'
+  );
 
   const [restaurante, setRestaurante] = useState(null);
   const [ingredientes, setIngredientes] = useState([]);

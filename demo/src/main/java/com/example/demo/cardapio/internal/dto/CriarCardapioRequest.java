@@ -1,10 +1,11 @@
 package com.example.demo.cardapio.internal.dto;
 
+import com.example.demo.cardapio.internal.entity.CardapioCategoriaEntity;
 import com.example.demo.cardapio.internal.entity.CardapioEntity;
 import com.example.demo.cardapio.internal.entity.CategoriaEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
@@ -24,25 +25,21 @@ public record CriarCardapioRequest(
         Boolean ativo,
 
         @Valid
-        List<ItemCategoriaRequest> categorias
+        List<CategoriaCardapioRequest> categorias
 ) {
-    public record ItemCategoriaRequest(
-            @NotBlank(message = "O nome da categoria é obrigatório")
-            @Size(max = 80, message = "O nome da categoria deve ter no máximo 80 caracteres")
-            String nome,
-
-            String descricao,
+    public record CategoriaCardapioRequest(
+            @NotNull(message = "O id da categoria é obrigatório")
+            UUID categoriaId,
 
             @PositiveOrZero(message = "A prioridade de exibição não pode ser negativa")
             Integer prioridadeExibicao,
 
             Boolean ativo
     ) {
-        public CategoriaEntity toEntity(CardapioEntity cardapio) {
-            return new CategoriaEntity(
+        public CardapioCategoriaEntity toEntity(CardapioEntity cardapio, CategoriaEntity categoria) {
+            return new CardapioCategoriaEntity(
                     cardapio,
-                    this.nome,
-                    this.descricao,
+                    categoria,
                     this.prioridadeExibicao,
                     this.ativo
             );

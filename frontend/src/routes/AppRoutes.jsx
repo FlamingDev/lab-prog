@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { PaginaLogin } from '@/modules/autenticacao/pages/PaginaLogin/PaginaLogin';
+import { PaginaCategorias } from '@/modules/cardapio/pages/PaginaCategorias/PaginaCategorias';
 import { PaginaEstoque } from '@/modules/estoque/pages/PaginaEstoque/PaginaEstoque';
 import { RotaPrivada } from './RotaPrivada';
 import { RotaPublica } from './RotaPublica';
@@ -17,6 +18,7 @@ export function AppRoutes() {
         <Route element={<RotaPrivada />}>
           <Route path="/" element={<PaginaEstoque />} />
           <Route path="/estoque" element={<PaginaEstoque />} />
+          <Route path="/categorias" element={<PaginaCategorias />} />
         </Route>
 
         {/* Qualquer rota desconhecida redireciona para a raiz */}
